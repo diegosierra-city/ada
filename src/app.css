@@ -1,0 +1,240 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+	
+	.boton{
+	@apply bg-primary	
+	}
+	/* ... */
+  
+
+  body{
+    margin: 0px; padding: 0px; 
+    
+    font-family: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+-moz-font-smoothing: antialiased;
+-moz-osx-font-smoothing: antialiased;
+ }
+ main{
+    @apply pt-12
+ }
+
+ header{
+	
+	 @apply bg-primary fixed w-full sm:flex z-50 top-0 text-white
+
+ }
+ .menu_up{
+    @apply mx-auto
+ }
+ .menu_up ul{
+    @apply flex items-center 
+ }
+ .menu_up li{
+	transition: 600ms all;
+	@apply text-white px-3 py-2 text-sm font-medium border-b-4 border-primary hover:border-b-secondary hover:bg-lavender/10 
+}
+/*
+.boton-principal-active, .boton-principal-movil-active, 
+*/
+.menu_up .active{
+	@apply  border-b-4 !border-b-secondary
+}
+
+.menu_up_movil{
+    @apply absolute top-8 right-2 bg-primary p-2 border border-gray rounded-lg
+}
+.menu_up_movil li{
+	transition: 600ms all;
+	@apply text-white pl-2 pr-5 py-2 text-sm font-medium border-l-4 border-primary hover:border-l-secondary hover:bg-lavender/10 
+}
+.menu_up_movil .active{
+	@apply  border-l-4 !border-l-secondary
+}
+
+footer{
+    @apply bg-darkgray text-silver text-sm p-2 w-full
+ }
+ 
+.menu_footer{
+    @apply grid grid-cols-2 lg:grid-cols-3 gap-1
+}
+ .menu_footer li{
+	transition: 600ms all;
+	@apply text-silver px-3 py-0 m-0 text-sm font-medium hover:text-secondary 
+}
+.menu_footer .active{
+	@apply  text-secondary
+}
+
+.card_home{
+    transition: 600ms all;
+    @apply relative rounded-lg overflow-hidden cursor-pointer
+}
+.card_title{
+    @apply absolute top-2 left-0 w-full text-center text-white drop-shadow-lg shadow-black
+}
+.card_titleB{
+    @apply absolute bottom-2 left-0 w-full text-center text-white drop-shadow-lg shadow-black bg-black opacity-70 p-3
+}
+.card_img{
+    transition: 600ms all;
+}
+
+.card_home:hover .card_img{
+    @apply scale-110 
+}
+
+.logo_down{
+    transition: 600ms all;
+    @apply grayscale hover:grayscale-0 cursor-pointer
+}
+ 
+ .menu_boton_footer{ @apply hover:text-secondary}
+ .menu_boton_footer_active{ @apply text-secondary}
+
+
+
+ .menu_boton{
+    @apply px-10 py-2 mx-2 cursor-pointer hover:bg-secondary hover:text-black
+}
+.menu_boton_active{
+    @apply px-10 py-2 mx-2 cursor-pointer hover:bg-secondary hover:text-black border-b-4 border-secondary
+}
+
+ #cookie{
+    @apply z-20
+ }
+ #menu-top{
+	@apply w-10/12 mx-auto
+ }
+
+ #logo{
+	
+	@apply mt-2 float-left w-10
+
+}
+
+
+
+.boton-principal-movil{
+
+	@apply text-black hover:text-primary focus:text-primary active:text-primary px-3 py-2 text-sm font-medium border border-secondary hover:border-b-black hover:bg-wheat block
+}
+
+
+
+.boton_admin li{
+    @apply flex w-full justify-between text-lightgray cursor-pointer items-center mb-2 hover:bg-white hover:bg-opacity-10 hover:text-white rounded-lg p-1 
+}
+.boton_admin_active{
+    @apply flex w-full justify-between text-lightgray cursor-pointer items-center mb-2  hover:text-white rounded-lg p-1 bg-black
+}
+
+.btn-min{
+    @apply flex text-white cursor-pointer items-center mx-1 hover:ring-1 hover:text-white rounded-md p-1 
+}
+
+.box_submenu{
+    @apply origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none
+}
+.boton_submenu{
+    @apply block px-4 py-2 text-sm text-darkgray hover:bg-aliceblue
+}
+
+.boton_alert{
+    @apply py-1 px-3 bg-silver rounded text-black flex items-center justify-center text-xs font-bold
+}
+
+.inputA{
+    @apply bg-ghostwhite border border-slategray rounded text-sm font-medium leading-none placeholder-slategray text-primary py-1 w-full pl-2 mt-2 focus:border-primary target:border-primary
+}
+
+/*
+focus:ring-2 focus:ring-offset-2 focus:ring-primary 
+*/
+.btn-primary-full{
+    @apply text-sm font-semibold leading-none text-white focus:outline-none bg-primary border rounded hover:bg-gray py-4 w-full
+}
+
+.btn-primary{
+    @apply transition duration-150 ease-in-out rounded text-white px-3 py-2 text-xs bg-primary mb-2 cursor-pointer hover:ring-1 
+}
+.btn-green{
+    @apply transition duration-150 ease-in-out rounded text-white px-3 py-2 text-sm bg-green mb-2  hover:ring-1
+}
+.btn-red{
+    @apply transition duration-150 ease-in-out rounded text-white px-3 py-2 text-sm bg-red mb-2  hover:ring-1 
+}
+.bg-edit{
+    @apply fixed w-full h-full bg-black/70 z-10 overflow-auto top-0 left-0 
+    
+}
+
+/* Message */
+.bg-message{
+    @apply fixed w-full h-full bg-black/70 z-40 overflow-auto top-0 left-0
+    
+}
+#znMessage{
+    @apply focus:outline-none w-11/12 mx-auto mb-4 my-6 md:w-5/12 shadow sm:px-10 sm:py-6 py-4 px-4 bg-white rounded-md ring-1 ring-inset z-20
+}
+.message-title{
+    @apply text-white mb-3 p-2 rounded-lg
+}
+
+.message-red{
+    @apply ring-red
+}
+.message-red .message-title{
+    @apply bg-red
+}
+.message-green{
+    @apply ring-green
+}
+.message-green .message-title{
+    @apply bg-green
+}
+/* The End Message */
+
+
+.message{
+    @apply focus:outline-none w-11/12 mx-auto mb-4 my-6 md:w-5/12 shadow sm:px-10 sm:py-6 py-4 px-4 bg-white rounded-md ring-2 ring-inset ring-primary z-50
+}
+
+
+.edit-page{
+    @apply w-10/12 mx-auto mb-4 my-6 shadow sm:px-10 sm:py-6 py-4 px-4 bg-white rounded-md ring-1 ring-inset ring-green z-20
+}
+ .center{   
+     width: 85%;
+     margin: 0px auto;/*centrar*/
+ }
+ .clearfix{
+     clear: both;
+     float: none;
+ }
+
+ .icono_admin{
+    @apply bg-white bg-opacity-0 hover:bg-opacity-20 p-2 rounded-lg mt-1
+ }
+ .card{
+    @apply bg-aliceblue border border-black rounded-lg m-2 overflow-hidden cursor-pointer hover:border-primary
+ }
+
+.link{
+    @apply cursor-pointer text-primary hover:text-black
+}
+
+ h1{font-size: 40px; font-weight:bold}
+ h2{font-size: 30px; font-weight:bold}
+ h3{font-size: 20px; font-weight:bold} 
+ h4{font-size: 18px; font-weight:bold}
+
+
+
+}
