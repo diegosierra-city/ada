@@ -1,366 +1,178 @@
 <script lang="ts">
-	import { onMount, prop_dev } from 'svelte/internal';
+	import { onMount } from 'svelte/internal';
 	import { apiKey } from '../store';
-	import { fade, fly } from 'svelte/transition';
-	import { scale } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
 
-	import type { BlockContent } from '$lib/types/BlockContent';
-	import type { Menu } from '$lib/types/Menu';
-	import type { WebContent } from '$lib/types/WebContent';
+	import type { Car } from '$lib/types/Car';
+	import type { Municipio } from '$lib/types/Municipios';
 
 	const urlAPI = $apiKey.urlAPI;
-	const urlFiles = $apiKey.urlFiles;
-	const company_id = $apiKey.company_id;
-	const company_name = $apiKey.company_name;
-	const tokenWeb = $apiKey.tokenWeb;
 
-	///load the content
-	let cont: BlockContent = {
-		id: 0,
-		menu_id: 0,
-		title: '',
-		subtitle: '',
-		text1: '',
-		text2: '',
-		text3: '',
-		text4: '',
-		image1: '',
-		image2: '',
-		image3: '',
-		image4: '',
-		video: '',
-		position: 1,
-		link: ''
-	};
-	let pag: Menu = {
-		id: 0,
-		menu_id: 0,
-		menu: '',
-		type: '',
-		link: '',
-		head: false,
-		foot: false,
-		side: false,
-		position: 1,
-		submenu: false,
-		submenus: [],
-		metadescription: '',
-		metakeywords: ''
-	};
+	let listCars: Array<Car> = [];
+	let listMunicipios: Array<Municipio> = [];
 
-	let listCont: Array<WebContent> = [
-		{
-			id: 0,
-			menu: '',
-			type: '',
-			metadescription: '',
-			metakeywords: '',
-
-			content_id: 0,
-			title: '',
-			subtitle: '',
-			text1: '',
-			text2: '',
-			text3: '',
-			text4: '',
-			image1: '',
-			image2: '',
-			image3: '',
-			image4: '',
-			video: '',
-			position: 0,
-			link: ''
-		}
-	];
 	//
-	onMount(async () => {
-		/*
-		console.log(
-			urlAPI +
-				'?ref=load-listDUO&folder=categories&folderB=products&union=category_id&company_id=' +
-				company_id +
-				'&tokenWeb=' +
-				tokenWeb
-		);
-		*/
-		/*
-		console.log(
-			urlAPI +
-				'?ref=load-listWebContent&type=Gallery&company_id=' +
-				company_id +
-				'&tokenWeb=' +
-				tokenWeb
-		);
-		*/
-		fetch(
-			urlAPI +
-				'?ref=load-listWebContent&type=Gallery&company_id=' +
-				company_id +
-				'&tokenWeb=' +
-				tokenWeb
-		)
+	function loadlistCars() {
+		fetch(urlAPI + 'car')
 			.then((response) => response.json())
 			.then((result) => {
 				//console.table(result);
 				if (result.error) {
-					console.log('error');
+					//console.log('error');
 					console.log(result.error);
 				} else {
-					console.log('ok');
-					console.log(result);
+					//console.log(result);
 
-					listCont = result;
+					listCars = result;
 				}
 			});
-	});
+	}
 
-	onMount(async () => {
-		/*
-		console.log(
-			urlAPI + '?ref=page-web&type=Home&company_id=' + company_id + '&tokenWeb=' + tokenWeb
-		);
-		*/
-		fetch(urlAPI + '?ref=page-web&type=Home&company_id=' + company_id + '&tokenWeb=' + tokenWeb)
+	loadlistCars();
+
+	function loadListMunicipios() {
+		fetch('https://www.datos.gov.co/resource/xdk5-pm3f.json')
 			.then((response) => response.json())
 			.then((result) => {
 				//console.table(result);
 				if (result.error) {
-					console.error(result.error);
+					//console.log('error');
+					console.log(result.error);
 				} else {
-					console.log(result);
+					//console.log(result);
 
-					pag = result[0];
-					//cont = JSON.parse(result[1]);
-					cont = result[1];
-					//console.table(pag.metadescription);
+					listMunicipios = result;
 				}
 			});
-	});
+	}
 
-	$: innerWidth = 0;
-	$: innerHeight = 0;
-	let prefix: string = '';
+	loadListMunicipios();
 
-	//$: console.log('Ancho: '+innerWidth)
-	const movil = (w: number) => {
-		if (w > 900) {
-			//800
-			prefix = '';
-		} else {
-			prefix = 'M';
-		}
+	let showNewCar: boolean = false;
+	let CarSelect: Car;
+	let positionCar: number;
+
+	function showEditCar(item: Car, position: number) {
+		CarSelect = item;
+		showNewCar = true;
+		positionCar = position;
+	}
+
+	const editCar = () => {
+		fetch(urlAPI + 'car/' + CarSelect.id + '/update', {
+			method: 'POST',
+			body: JSON.stringify({
+				Id: CarSelect.id,
+				Name: CarSelect.name,
+				Model: CarSelect.model,
+				Mark: CarSelect.mark,
+				Department: CarSelect.department
+				//
+			}),
+			headers: {
+				'Content-type': 'application/json; charset=UTF-8'
+			}
+		})
+			//.then((response) => response.json())
+			.then((response) => console.log(response))
+			.then((result: any) => {
+				//console.log('ok:'+new_user.error)
+				console.log(result);
+				/// si es corrrecto
+				showNewCar = false;
+				listCars[positionCar] = CarSelect;
+
+				//console.table(result)
+			});
+
+		//.catch((error) => {console.log(error)})
+
+		//  });
 	};
 
-	$: movil(innerWidth);
-
-	let slide: number = 1;
-	let slideView: number = 1;
-
-	$: if (cont.image2 != '') {
-		slide = 2;
-		if (cont.image3 != '') {
-			slide++;
+	const deleteCar = (id: number) => {
+		if (confirm('Delete this Field?')) {
+			listCars = listCars.filter((item) => item.id != id);
 		}
-		if (cont.image4 != '') {
-			slide++;
-		}
+
+		fetch(urlAPI + 'car/' + id + '/update', {
+			method: 'DELETE',
+			body: JSON.stringify({}),
+			headers: {
+				'Content-type': 'application/json; charset=UTF-8'
+			}
+		})
+			//.then((response) => response.json())
+			.then((response) => console.table(response))
+			.then((result: any) => {
+				//console.log('ok:'+new_user.error)
+				console.log(result);
+				/// si es corrrecto
+
+				//console.table(result)
+			});
+
+		//.catch((error) => {console.log(error)})
+
+		//  });
+	};
+
+	function newCar() {
+		CarSelect = {
+			id: 0,
+			name: '',
+			model: 0,
+			mark: '',
+			department: ''
+		};
+		showNewCar = true;
 	}
 
-	function slidePlay(s: number) {
-		//console.log('inicio:'+s)
-		if (s > 1) {
-			setInterval(() => {
-				if (slideView == s) {
-					slideView = 0;
-				} else if (slideView == 0) {
-					slideView = s - 1;
-				}
-				slideView++;
-				//console.log('slid*:'+slideView+'+'+s)
-			}, 7000);
-		}
-	}
+	const saveCar = () => {
+		CarSelect.id=Date.now();
+		fetch(urlAPI + 'car/store', {
+			method: 'POST',
+			body: JSON.stringify({
+				Id: CarSelect.id,
+				Name: CarSelect.name,
+				Model: CarSelect.model,
+				Mark: CarSelect.mark,
+				Department: CarSelect.department
+				//
+			}),
+			headers: {
+				'Content-type': 'application/json; charset=UTF-8'
+			}
+		})
+			//.then((response) => response.json())
+			.then((response) => console.table(response))
+			.then((result) => {
+				//
+				console.log(result);
+				showNewCar = false;
+				listCars = [...listCars, CarSelect];
+			});
 
-	function slideControl(p: number) {
-		if (p > slide) {
-			slideView = 1;
-		} else if (p == 0) {
-			slideView = slide;
-		} else {
-			slideView = p;
-		}
-		//console.log('slide:'+slideView+'('+p+')'+slide)
-	}
+		//.catch((error:any) => {console.log(error)});
 
-	$: slidePlay(slide);
+		//  });
+	};
 </script>
 
 <svelte:head>
-	<title>{company_name}</title>
-	<meta name="description" content={pag.metadescription} />
-	<meta name="keywords" content={pag.metakeywords} />
+	<title>ADA</title>
 </svelte:head>
-<svelte:window bind:innerWidth bind:innerHeight />
 
-<section class="-mt-10">
-	<!--Image-->
-	{#if cont.image1 != '' && cont.image2 == ''}
-		<img src="{urlFiles}/images/pages/{cont.image1}" alt="" class="w-full h-auto" />
-	{/if}
+<section class="w-8/12 mx-auto">
+	<h2 class="text-secondary text-center">Listado de Vehículos</h2>
 
-	<!--Carousel-->
-
-	{#if cont.image1 != '' && cont.image2 != ''}
-		<div class="relative w-full overflow-hidden">
-			<img
-				src="{urlFiles}/images/pages/{prefix}{cont.image1}"
-				alt=""
-				class="w-full h-auto relative z-0"
-			/>
-			<img src="{urlFiles}/images/pages/{prefix}{cont.image2}" alt="" class="hidden" />
-			{#if cont.image3 != ''}
-				<img src="{urlFiles}/images/pages/{prefix}{cont.image3}" alt="" class="hidden" />
-			{/if}
-			{#if cont.image4 != ''}
-				<img
-					transition:fade
-					src="{urlFiles}/images/pages/{prefix}{cont.image4}"
-					alt=""
-					class="hidden"
-				/>
-			{/if}
-
-			{#if slideView == 1}
-				<img
-					transition:fade
-					src="{urlFiles}/images/pages/{prefix}{cont.image1}"
-					alt=""
-					class="w-full h-auto absolute top-0 left-0 z-30 "
-				/>
-				<div
-					class="absolute bottom-10 left-0 z-30 w-full text-white drop-shadow-lg shadow-black "
-					transition:fly={{ x: 200, duration: 2000 }}
-				>
-					<h2 class=" w-10/12 mx-auto">Frontend Developer</h2>
-				</div>
-			{/if}
-
-			{#if slideView == 2}
-				<img
-					transition:fade
-					src="{urlFiles}/images/pages/{prefix}{cont.image2}"
-					alt=""
-					class="w-full h-auto absolute top-0 left-0 z-20"
-				/>
-				<div
-					class="absolute bottom-10 left-0 z-20 w-full text-white drop-shadow-lg shadow-black "
-					transition:fly={{ x: 200, duration: 2000 }}
-				>
-					<h2 class=" w-10/12 mx-auto">Backend Developer</h2>
-				</div>
-			{/if}
-			{#if cont.image3 != '' && slideView == 3}
-				<img
-					transition:fade
-					src="{urlFiles}/images/pages/{prefix}{cont.image3}"
-					alt=""
-					class="w-full h-auto absolute top-0 left-0 z-10"
-				/>
-				<div
-					class="absolute bottom-10 left-0 z-10 w-full text-white drop-shadow-lg shadow-black "
-					transition:fly={{ x: 200, duration: 2000 }}
-				>
-					<h2 class=" w-10/12 mx-auto">Movil Developer</h2>
-				</div>
-			{/if}
-			{#if cont.image4 != '' && slideView == 4}
-				<img
-					transition:fade
-					src="{urlFiles}/images/pages/{prefix}{cont.image4}"
-					alt=""
-					class="w-full h-auto absolute top-0 left-0 z-0"
-				/>
-				<div
-					class="absolute bottom-10 left-0 z-0 w-full text-white drop-shadow-lg shadow-black "
-					transition:fly={{ x: 200, duration: 2000 }}
-				>
-					<h2 class=" w-10/12 mx-auto">Movil Developer</h2>
-				</div>
-			{/if}
-
-			<div
-				class="absolute z-40 left-2 bottom-2 rounded-lg bg-lightsteelblue p-1 opacity-50 cursor-pointer hover:text-white"
-				on:click={() => {
-					slideControl(slideView - 1);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="w-6 h-6"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-				</svg>
-			</div>
-
-			<div
-				class="absolute z-40 right-2 bottom-2 rounded-lg bg-lightsteelblue p-1 opacity-50 cursor-pointer hover:text-white"
-				on:click={() => {
-					slideControl(slideView + 1);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="w-6 h-6"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-				</svg>
-			</div>
-		</div>
-	{/if}
-
-	<!--video-->
-
-	{#if cont.video != ''}
-		<iframe
-			style="width:100%; height:60vw"
-			src="https://www.youtube.com/embed/{cont.video}"
-			title="YouTube video player"
-			frameborder="0"
-			allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-			allowfullscreen
-		/>
-	{/if}
-</section>
-
-<section>
-	<div class="w-11/12 md:w-8/12 mx-auto">
-		<h2 class="text-primary">Diego Sierra</h2>
-		
-	<p class="m-3 p-3 bg-aliceblue">{cont.text1}</p>
-	</div>
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 container mx-auto my-6 px-4">
-		{#each listCont as ct}
-			<a class="card_home mx-auto" href="/page/{ct.link}">
-				<div class="card_img">
-					<img src="{urlFiles}/images/pages/M{ct.image1}" alt={ct.menu} />
-				</div>
-				<div class="card_title">
-					<h3>{ct.menu}</h3>
-					<p class="bg-black opacity-70 p-3 ">
-						{ct.text1}
-					</p>
-				</div>
+	<div class="p-3 w-full ">
+		<div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
+			<div class="flex">
 				<button
-					class="btn-green mr-2 flex w-full !mx-auto !rounded-b-lg rounded-t-none relative z-10"
+					class="btn-primary flex"
+					on:click={() => {
+						newCar();
+					}}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -370,14 +182,181 @@
 					>
 						<path
 							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
 							clip-rule="evenodd"
 						/>
 					</svg>
-					more info</button
+					Agregar Nuevo Vehículo</button
 				>
-			</a>
-		{/each}
+			</div>
+			<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+				<thead class="text-xs text-white uppercase bg-primary dark:bg-gray-700 dark:text-gray-400">
+					<th scope="col" class="px-4 py-2" />
+					<th scope="col" class="px-4 py-2"> Nombre </th>
+					<th scope="col" class="px-4 py-2"> Modelo </th>
+					<th scope="col" class="px-4 py-2"> Marca </th>
+					<th scope="col" class="px-4 py-2"> Municipio </th>
+
+					<th scope="col" class="px-4 py-2" />
+					<th scope="col" class="px-4 py-2" />
+				</thead>
+				<tbody>
+					{#each listCars as cr, i}
+						<tr class="bg-white border-b hover:bg-aliceblue">
+							<td class="font-bold">{i + 1}</td>
+							<td>{cr.name}</td>
+							<td>{cr.model}</td>
+							<td>{cr.mark}</td>
+							<td>{cr.department}</td>
+
+							<td>
+								<svg
+									on:click={() => {
+										showEditCar(cr, i);
+									}}
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5 text-green cursor-pointer hover:black"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+									/>
+								</svg>
+							</td>
+							<td>
+								<svg
+									on:click={() => {
+										deleteCar(cr.id);
+									}}
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5 text-red cursor-pointer hover:black"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+									/></svg
+								>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </section>
-<!---->
+
+{#if showNewCar == true}
+	<div
+		class="bg-message"
+		on:click={() => {
+			showNewCar = false;
+		}}
+	/>
+
+	<div class="znMessage">
+		<div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+			<div>
+				Nombre <br />
+				<input type="text" class="inputA" placeholder="Nombre" bind:value={CarSelect.name} />
+			</div>
+
+			<div>
+				Modelo <br />
+				<input type="number" class="inputA" placeholder="Modelo" bind:value={CarSelect.model} />
+			</div>
+
+			<div>
+				Marca <br />
+				<input type="text" class="inputA" placeholder="Marca" bind:value={CarSelect.mark} />
+			</div>
+
+			<div>
+				Municipio <br />
+				<select class="inputA" bind:value={CarSelect.department} >
+					{#each listMunicipios as municipio}
+						<option value="{municipio.municipio}"
+							>{municipio.municipio} ({municipio.departamento})</option
+						>
+					{/each}
+				</select>
+			</div>
+		</div>
+
+		<div class="flex mt-4">
+			{#if CarSelect.id != 0}
+				<button
+					class="btn-green flex mr-4"
+					on:click={() => {
+						editCar();
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-5 w-5 mr-1"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					Guardar</button
+				>
+			{:else}
+				<button
+					class="btn-green flex mr-4"
+					on:click={() => {
+						saveCar();
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-5 w-5 mr-1"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					Registrar</button
+				>
+			{/if}
+
+			<button
+				class="ml-4 flex btn-red"
+				on:click={() => {
+					showNewCar = false;
+				}}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-5 w-5 mr-1"
+					viewBox="0 0 20 20"
+					fill="currentColor"
+				>
+					<path
+						fill-rule="evenodd"
+						d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+						clip-rule="evenodd"
+					/>
+				</svg>
+				Cancel</button
+			>
+		</div>
+	</div>
+{/if}
