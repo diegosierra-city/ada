@@ -90,7 +90,7 @@
 	};
 
 	const deleteCar = (id: number) => {
-		if (confirm('Delete this Field?')) {
+		if (confirm('Desea Borrar este registro?')) {
 			listCars = listCars.filter((item) => item.id != id);
 		}
 
